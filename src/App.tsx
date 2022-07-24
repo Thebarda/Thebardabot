@@ -1,24 +1,23 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { Typography } from "@mui/material";
+import { useAtomValue } from "jotai";
+import { isNil } from "ramda";
+import { tokenAtom } from "./atoms";
+import Chat from "./Chat";
+import useTwitchAuthentication from "./useTwitchAuthentication";
 
-function App() {
+
+const App = () => {
+  useTwitchAuthentication();
+  
+  const token = useAtomValue(tokenAtom);
+
+  if (isNil(token)) {
+    return <Typography variant="h2">Redirecting to Twitch for authentication...</Typography>
+  }
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ width: '100%', height: '100vh' }}>
+      <Chat />
     </div>
   );
 }
