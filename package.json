@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@types/ramda": "^0.28.15",
-    "@types/tmi.js": "^1.8.1"
+    "@types/tmi.js": "^1.8.1",
+    "puppeteer": "^15.5.0"
   }
 }

@@ -1,19 +1,24 @@
 import { useAtomValue, useSetAtom } from 'jotai';
-import { append, concat, equals, isNil, map } from 'ramda';
+import { append, concat, isNil, map, prop, sortBy } from 'ramda';
 import { useEffect, useRef } from 'react';
 import tmi, { ChatUserstate, Client } from 'tmi.js';
-import { chatMessagesAtom, emotesAtom, tokenAtom, userAtom } from '../atoms';
+import { badgesAtom, chatMessagesAtom, emotesAtom, tokenAtom, userAtom } from '../atoms';
 
 import credentials from '../credentials.json';
 import { ChatMessage, Emote } from '../models';
 
+const channel = ''; // DEBUG
+
 const formatEmotesFromAPI = map<{ name: string; images: { url_1x: string } }, Emote>(({ name, images }) => ({ name, url: images.url_1x }))
+
+const formatBTTVEmotesFromApi = map<{ id: string; code: string; }, Emote>(({ id, code }) => ({ name: code, url: `https://cdn.betterttv.net/emote/${id}/1x` }));
 
 export const useChat = () => {
   const token = useAtomValue(tokenAtom);
   const user = useAtomValue(userAtom);
   const setChatMessages = useSetAtom(chatMessagesAtom);
   const setEmotes = useSetAtom(emotesAtom);
+  const setBadges = useSetAtom(badgesAtom);
 
   const clientRef = useRef<Client | null>(null);
 
@@ -24,9 +29,6 @@ export const useChat = () => {
     setChatMessages((currentChatMessages) => append<ChatMessage>({
       color: '',
       displayName: undefined,
-      hasPrime: false,
-      isBroadcaster: false,
-      isModerator: false,
       type: 'connect',
       username: undefined,
       message: "Welcome to the chat",
@@ -35,17 +37,10 @@ export const useChat = () => {
   }
   
   const onMessageHandler = (target: unknown, context: ChatUserstate, msg: string, self: unknown) => {
-    if (self) { 
-      return; 
-    }
-    console.log(context)
-
     setChatMessages((currentChatMessages) => append<ChatMessage>({
       color: context.color,
       displayName: context['display-name'],
-      hasPrime: equals(context.badges?.premium, '1'),
-      isBroadcaster: equals(context.badges?.broadcaster, '1'),
-      isModerator: equals(context.badges?.moderator, '1'),
+      badges: context.badges,
       type: context['message-type'],
       username: context.username,
       message: msg.trim(),
@@ -70,6 +65,13 @@ export const useChat = () => {
     client.connect();
   }
 
+  const getChannelInformation = () => fetch(`https://api.twitch.tv/helix/users?login=${channel}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Client-Id': clientId,
+    }
+  })
+
   const getGlobalEmotes = () => fetch('https://api.twitch.tv/helix/chat/emotes/global', {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -77,12 +79,35 @@ export const useChat = () => {
     }
   });
 
-  const getChannelEmotes = () => fetch(`https://api.twitch.tv/helix/chat/emotes?broadcaster_id=${user?.id}`, {
+  const getGlobalBadges = () => fetch('https://api.twitch.tv/helix/chat/badges/global', {
     headers: {
       Authorization: `Bearer ${token}`,
       'Client-Id': clientId,
     }
   });
+
+  const getChannelEmotes = (id: string) => fetch(`https://api.twitch.tv/helix/chat/emotes?broadcaster_id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Client-Id': clientId,
+    }
+  });
+
+  const getChannelBadges = (id: string) => fetch(`https://api.twitch.tv/helix/chat/badges?broadcaster_id=${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Client-Id': clientId,
+    }
+  });
+
+  const getSubBadges = (id: string) => fetch(`https://badges.twitch.tv/v1/badges/channels/${id}/display`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Client-Id': clientId,
+    }
+  });
+
+  const getBTTVGlobalEmotes = () => fetch('https://api.betterttv.net/3/cached/emotes/global');
 
   useEffect(() => {
     if (isNil(token) || isNil(user)) {
@@ -91,19 +116,40 @@ export const useChat = () => {
       };
     }
 
-    Promise.all([
-      getChannelEmotes(),
-      getGlobalEmotes(),
-    ]).then(async([retrievedChannelEmotes, retrievedGlobalEmotes]) => {
-      const channelEmotes = await retrievedChannelEmotes.json();
-      const globalEmotes = await retrievedGlobalEmotes.json();
+    getChannelInformation().then(async (response) => {
+      const { id } = (await response.json()).data[0];
 
-      const formattedChannelEmotes = formatEmotesFromAPI(channelEmotes.data);
-      const formattedGlobalEmotes = formatEmotesFromAPI(globalEmotes.data);
+      Promise.all([
+        getChannelEmotes(id),
+        getGlobalEmotes(),
+        getBTTVGlobalEmotes()
+      ]).then(async([retrievedChannelEmotes, retrievedGlobalEmotes, retrievedBTTVGlobalEmotes]) => {
+        const channelEmotes = await retrievedChannelEmotes.json();
+        const globalEmotes = await retrievedGlobalEmotes.json();
+        const BTTVGlobalEmotes = await retrievedBTTVGlobalEmotes.json();
+  
+        const formattedChannelEmotes = formatEmotesFromAPI(channelEmotes.data);
+        const formattedGlobalEmotes = formatEmotesFromAPI(globalEmotes.data);
+        const formattedBTTVGlobalEmotes = formatBTTVEmotesFromApi(BTTVGlobalEmotes);
+  
+        setEmotes([
+          ...formattedChannelEmotes,
+          ...formattedGlobalEmotes,
+          ...formattedBTTVGlobalEmotes
+        ]);
+  
+        startListenChat(channel);
+      });
 
-      setEmotes(concat(formattedGlobalEmotes, formattedChannelEmotes));
-
-      startListenChat(user.login);
+      Promise.all([
+        getGlobalBadges(),
+        getChannelBadges(id),
+      ]).then(async ([retrievedGlobalBadges, retrievedChannelBadges]) => {
+        const globalBadges = await retrievedGlobalBadges.json();
+        const channelBadges = await retrievedChannelBadges.json();
+  
+        setBadges(concat(channelBadges.data, globalBadges.data));
+      })
     });
 
     return () => {

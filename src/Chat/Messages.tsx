@@ -1,19 +1,29 @@
 import { useAtomValue } from "jotai";
-import { isNil, lt } from "ramda";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef } from "react";
+import { makeStyles } from "tss-react/mui";
 import { chatMessagesAtom } from "../atoms";
 import Message from "./Message";
 
+const useStyles = makeStyles()((theme) => ({
+  messagesContainer: {
+    height: '100%',
+    overflowY: 'auto',
+    overflowX: 'hidden',
+    padding: theme.spacing(2, 0, 2, 4),
+    display: 'flex',
+    flexDirection: 'column',
+    rowGap: theme.spacing(0.5)
+  },
+}))
+
 const Messages = () => {
+  const { classes } = useStyles();
+
   const messages = useAtomValue(chatMessagesAtom);
 
-  const [translation, setTranslation] = useState(0);
   const parentRef = useRef<HTMLDivElement | null>(null);
-  const chatListRef = useRef<HTMLDivElement | null>(null);
 
   const resize = () => {
-    const tr = (parentRef.current?.getBoundingClientRect().height || 0) - (chatListRef.current?.getBoundingClientRect().height || 0) - 8
-    setTranslation(lt(tr, 0) ? -8 : tr)
     parentRef.current?.scrollTo({
       top: parentRef.current?.scrollHeight,
     })
@@ -37,17 +47,10 @@ const Messages = () => {
   }, []);
 
   return (
-    <div style={{ width: '340px', height: '100%', overflowY: 'auto' }} ref={parentRef}>
-      <div 
-        ref={chatListRef}
-        style={{
-          transform: `translateY(${translation}px)`,
-        }}
-      >
+    <div className={classes.messagesContainer} ref={parentRef}>
         {messages.map((message) => (
           <Message chatMessage={message} key={message?.id} />
         ))}
-      </div>
     </div>
   )
 }

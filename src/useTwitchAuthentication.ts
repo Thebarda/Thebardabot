@@ -31,7 +31,7 @@ const useTwitchChat = () => {
       return;
     }
 
-    window.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${clientId}&redirect_uri=http://localhost:3000&scope=chat%3Aread`;
+    window.location.href = `https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=${clientId}&redirect_uri=http://localhost:3000&scope=chat%3Aread+user%3Aread%3Aemail`;
 
     return () => {
       clearInterval(intervalRef.current);
