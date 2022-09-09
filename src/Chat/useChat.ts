@@ -144,10 +144,6 @@ export const useChat = () => {
   }
 
   useEffect(() => {
-    
-  }, [token, user]);
-
-  useEffect(() => {
     setChatMessages([]);
     setEmotes([]);
     setBadges([]);
