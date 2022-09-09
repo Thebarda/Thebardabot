@@ -106,6 +106,8 @@ export const useChat = () => {
 
   const getBTTVGlobalEmotes = () => fetch('https://api.betterttv.net/3/cached/emotes/global');
 
+  const getBTTVChannelEmotes = (id: string) => fetch(`https://api.betterttv.net/3/cached/users/twitch/${id}`);
+
   const initChannelInformationEmotesAndBadges = () => {
     getChannelInformation().then(async (response) => {
       if (!response.ok) {
@@ -126,20 +128,26 @@ export const useChat = () => {
       Promise.all([
         getChannelEmotes(id),
         getGlobalEmotes(),
-        getBTTVGlobalEmotes()
-      ]).then(async([retrievedChannelEmotes, retrievedGlobalEmotes, retrievedBTTVGlobalEmotes]) => {
+        getBTTVGlobalEmotes(),
+        getBTTVChannelEmotes(id)
+      ]).then(async([retrievedChannelEmotes, retrievedGlobalEmotes, retrievedBTTVGlobalEmotes, retrievedBTTVChannelEmotes]) => {
         const channelEmotes = await retrievedChannelEmotes.json();
         const globalEmotes = await retrievedGlobalEmotes.json();
         const BTTVGlobalEmotes = await retrievedBTTVGlobalEmotes.json();
+        const BTTVChannelEmotes = await retrievedBTTVChannelEmotes.json();
   
         const formattedChannelEmotes = formatEmotesFromAPI(channelEmotes.data);
         const formattedGlobalEmotes = formatEmotesFromAPI(globalEmotes.data);
         const formattedBTTVGlobalEmotes = formatBTTVEmotesFromApi(BTTVGlobalEmotes);
+        const formattedBTTVChannelEmotes = formatBTTVEmotesFromApi(BTTVChannelEmotes.channelEmotes);
+        const formattedBTTVSharedEmotes = formatBTTVEmotesFromApi(BTTVChannelEmotes.sharedEmotes);
   
         setEmotes([
           ...formattedChannelEmotes,
           ...formattedGlobalEmotes,
-          ...formattedBTTVGlobalEmotes
+          ...formattedBTTVGlobalEmotes,
+          ...formattedBTTVChannelEmotes,
+          ...formattedBTTVSharedEmotes,
         ]);
   
         startListenChat(channel as string);
