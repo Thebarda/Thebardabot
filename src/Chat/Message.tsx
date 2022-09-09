@@ -1,6 +1,6 @@
-import { getContrastRatio, lighten, Link, Typography, useTheme } from "@mui/material";
+import { getContrastRatio, lighten, Typography, useTheme } from "@mui/material";
 import { useAtomValue } from "jotai";
-import { dec, equals, find, findIndex, flatten, gte, has, isEmpty, isNil, last, max, min, pipe, slice, startsWith, test, toPairs } from "ramda";
+import { dec, equals, find, findIndex, flatten, gte, has, isEmpty, isNil, last, max, min, pipe, slice, test, toPairs } from "ramda";
 import { makeStyles } from 'tss-react/mui';
 import { badgesAtom, emotesAtom } from "../atoms";
 import { ChatMessage, Emote } from "../models";
@@ -62,7 +62,7 @@ const Message = ({ chatMessage }: Props) => {
         return word;
       }
 
-      return `<a href=${word} target="_blank" class=${classes.link}>${word}</a>`;
+      return `<a href=${word} target="_blank" rel="noopener noreferrer" class=${classes.link}>${word}</a>`;
     })
   }
 

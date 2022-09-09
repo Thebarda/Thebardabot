@@ -1,14 +1,23 @@
 import { useState, FC, ChangeEvent, KeyboardEvent, memo } from 'react';
-import { AppBar, Avatar, Box, IconButton, InputAdornment, Skeleton, TextField, Toolbar, Typography } from "@mui/material"
+import { AppBar, Avatar, Box, darken, IconButton, InputAdornment, Skeleton, TextField, Toolbar, Typography } from "@mui/material"
 import SearchIcon from '@mui/icons-material/Search';
-import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
+import { makeStyles } from 'tss-react/mui';
 import { channelAtom, channelInformationAtom, isWaitingForConnectionDerivedAtom } from "./atoms"
 import { isEmpty, isNil } from 'ramda';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
 const label = 'Search for a channel';
 
+const useStyles = makeStyles()((theme) => ({
+  appBar: {
+    backgroundColor: darken(theme.palette.primary.main, 0.6),
+  }
+}))
+
 const Header: FC = () => {
+  const { classes } = useStyles();
+
   const [search, setSearch] = useState('');
 
   const [channel, setChannel] = useAtom(channelAtom);
@@ -37,7 +46,7 @@ const Header: FC = () => {
   }
 
   return (
-    <AppBar position="fixed">
+    <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
           <Box sx={{ display: 'flex', flexDirection: 'row', columnGap: 4, flexGrow: '1', alignItems: 'center' }}>
             <TextField
