@@ -8,3 +8,10 @@ Here is a list of supported features:
  - Connect to the channel's chat
  - Manage message badges
  - Parse message and display emotes (Channel emotes, global emote and BTTV emotes)
+
+ ## Stack used
+
+ - Jotai
+ - tmi.js
+ - Material UI
+ - Ramda
