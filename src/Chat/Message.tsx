@@ -1,6 +1,6 @@
-import { getContrastRatio, lighten, Typography, useTheme } from "@mui/material";
+import { getContrastRatio, lighten, Link, Typography, useTheme } from "@mui/material";
 import { useAtomValue } from "jotai";
-import { dec, equals, find, findIndex, flatten, gte, has, isEmpty, isNil, last, max, min, slice, toPairs } from "ramda";
+import { dec, equals, find, findIndex, flatten, gte, has, isEmpty, isNil, last, max, min, pipe, slice, startsWith, test, toPairs } from "ramda";
 import { makeStyles } from 'tss-react/mui';
 import { badgesAtom, emotesAtom } from "../atoms";
 import { ChatMessage, Emote } from "../models";
@@ -29,6 +29,13 @@ const useStyles = makeStyles()((theme) => ({
   badge: {
     marginRight: theme.spacing(0.5),
     verticalAlign: 'middle'
+  },
+  link: {
+    color: theme.palette.primary.main,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    }
   }
 }));
 
@@ -47,6 +54,16 @@ const Message = ({ chatMessage }: Props) => {
 
   if (equals(type, 'connect')) {
     return <Typography className={classes.welcomeMessage}><em>{message}</em></Typography>
+  }
+
+  const renderWords = (words: Array<string>) => {
+    return words.map((word) => {
+      if (!test(/^(http|https):\/\//, word)) {
+        return word;
+      }
+
+      return `<a href=${word} target="_blank" class=${classes.link}>${word}</a>`;
+    })
   }
 
   const parseMessage = (): Array<string | Array<string>> => {
@@ -76,14 +93,17 @@ const Message = ({ chatMessage }: Props) => {
     }).filter((index) => !isNil(index)) as Array<number | { badge: string; url: string; index: number; }>;
 
     if (isEmpty(emotesIndexes) || isNil(emotesIndexes)) {
-      return [`<span>${message}</span>`]
+      return [`<span>${renderWords(message.split(' ')).join(' ')}</span>`]
     }
 
     return emotesIndexes.map((emoteIndex, index) => {
       const isFirstElement = equals(index, 0);
 
       if (has('badge', emoteIndex)) {
-        return [`<span>${slice(isFirstElement ? 0 : emoteIndex.index, emoteIndex.index, message.split(' ')).join(' ')}</span>`, `<img alt="${emoteIndex.badge}" src="${emoteIndex.url}" className="${classes.emote}" />`]
+        return [
+          `<span>${pipe(slice(isFirstElement ? 0 : emoteIndex.index, emoteIndex.index) as (list: Array<string>) => Array<string>, renderWords)(message.split(' ')).join(' ')}</span>`,
+          `<img alt="${emoteIndex.badge}" src="${emoteIndex.url}" className="${classes.emote}" />`
+        ]
       }
       const emote = find(({ name }) => equals(name, message.split(' ')[emoteIndex]), emotes) as Emote;
 
@@ -92,7 +112,7 @@ const Message = ({ chatMessage }: Props) => {
       }
 
       return [
-        `<span>${slice(isFirstElement ? 0 : emoteIndex - 1, emoteIndex, message.split(' ')).join(' ')}</span>`,
+        `<span>${pipe(slice(isFirstElement ? 0 : emoteIndex - 1, emoteIndex) as (list: Array<string>) => Array<string>, renderWords)(message.split(' ')).join(' ')}</span>`,
         `<img alt="${emote.name}" src="${emote.url}" className="${classes.emote}" />`
       ]
     })
