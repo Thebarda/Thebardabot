@@ -38,3 +38,8 @@ export interface Badge {
   set_id: string;
   versions: Array<BadgeVersion>
 }
+
+export interface ChannelInformation {
+  displayName: string;
+  profileImage: string;
+}

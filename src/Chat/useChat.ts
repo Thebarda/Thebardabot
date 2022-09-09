@@ -1,8 +1,8 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import { append, concat, drop, gte, isNil, length, map } from 'ramda';
 import { useEffect, useRef } from 'react';
 import tmi, { ChatUserstate, Client } from 'tmi.js';
-import { badgesAtom, channelAtom, chatMessagesAtom, emotesAtom, tokenAtom, userAtom } from '../atoms';
+import { badgesAtom, channelAtom, channelInformationAtom, chatMessagesAtom, emotesAtom, tokenAtom, userAtom } from '../atoms';
 
 import credentials from '../credentials.json';
 import { ChatMessage, Emote } from '../models';
@@ -12,12 +12,13 @@ const formatEmotesFromAPI = map<{ name: string; images: { url_1x: string } }, Em
 const formatBTTVEmotesFromApi = map<{ id: string; code: string; }, Emote>(({ id, code }) => ({ name: code, url: `https://cdn.betterttv.net/emote/${id}/1x` }));
 
 export const useChat = () => {
+  const [channel, setChannel] = useAtom(channelAtom);
   const token = useAtomValue(tokenAtom);
   const user = useAtomValue(userAtom);
-  const channel = useAtomValue(channelAtom);
   const setChatMessages = useSetAtom(chatMessagesAtom);
   const setEmotes = useSetAtom(emotesAtom);
   const setBadges = useSetAtom(badgesAtom);
+  const setChannelInformation = useSetAtom(channelInformationAtom);
 
   const clientRef = useRef<Client | null>(null);
 
@@ -107,7 +108,20 @@ export const useChat = () => {
 
   const initChannelInformationEmotesAndBadges = () => {
     getChannelInformation().then(async (response) => {
-      const { id } = (await response.json()).data[0];
+      if (!response.ok) {
+        setChatMessages([]);
+        setEmotes([]);
+        setBadges([]);
+        setChannel(null);
+        setChannelInformation(null);
+      }
+
+      const { id, ...information } = (await response.json()).data[0];
+
+      setChannelInformation({
+        displayName: information.display_name,
+        profileImage: information.profile_image_url,
+      })
 
       Promise.all([
         getChannelEmotes(id),
@@ -147,6 +161,7 @@ export const useChat = () => {
     setChatMessages([]);
     setEmotes([]);
     setBadges([]);
+    setChannelInformation(null);
     
     if (isNil(token) || isNil(user)) {
       return () => {

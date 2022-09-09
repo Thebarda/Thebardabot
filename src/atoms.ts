@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 import { isEmpty, isNil } from "ramda";
-import { Badge, ChatMessage, Emote, User } from "./models";
+import { Badge, ChannelInformation, ChatMessage, Emote, User } from "./models";
 
 export const tokenAtom = atom<string | null>(null);
 
@@ -15,3 +15,5 @@ export const badgesAtom = atom<Array<Badge>>([]);
 export const channelAtom = atom<string | null>(null);
 
 export const isWaitingForConnectionDerivedAtom = atom((get) => isEmpty(get(chatMessagesAtom)) && !isNil(get(channelAtom)));
+
+export const channelInformationAtom = atom<ChannelInformation | null>(null);

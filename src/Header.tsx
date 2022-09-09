@@ -1,17 +1,19 @@
 import { useState, FC, ChangeEvent, KeyboardEvent, memo } from 'react';
-import { AppBar, IconButton, InputAdornment, TextField, Toolbar } from "@mui/material"
+import { AppBar, Avatar, Box, IconButton, InputAdornment, Skeleton, TextField, Toolbar, Typography } from "@mui/material"
 import SearchIcon from '@mui/icons-material/Search';
-import { useAtomValue, useSetAtom } from "jotai"
-import { channelAtom, isWaitingForConnectionDerivedAtom } from "./atoms"
-import { isEmpty } from 'ramda';
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { channelAtom, channelInformationAtom, isWaitingForConnectionDerivedAtom } from "./atoms"
+import { isEmpty, isNil } from 'ramda';
 import GitHubIcon from '@mui/icons-material/GitHub';
 
 const label = 'Search for a channel';
 
 const Header: FC = () => {
   const [search, setSearch] = useState('');
-  const setChannel = useSetAtom(channelAtom);
+
+  const [channel, setChannel] = useAtom(channelAtom);
   const isWaitingForConnection = useAtomValue(isWaitingForConnectionDerivedAtom);
+  const channelInformation = useAtomValue(channelInformationAtom);
 
   const changeText = (event: ChangeEvent<HTMLInputElement>): void => {
     setSearch(event.target.value)
@@ -37,7 +39,7 @@ const Header: FC = () => {
   return (
     <AppBar position="fixed">
         <Toolbar>
-          <div style={{ flexGrow: 1 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', columnGap: 4, flexGrow: '1', alignItems: 'center' }}>
             <TextField
               variant="filled"
               value={search}
@@ -53,7 +55,19 @@ const Header: FC = () => {
                 </InputAdornment>
                 )
               }} />
-            </div>
+              {
+                channel && isNil(channelInformation) && (
+                  <Box sx={{ display: 'flex', flexDirection: 'row', columnGap: 2, alignItems: 'center' }}>
+                    <Skeleton variant="circular" width={40} height={40} />
+                    <Skeleton variant="text" width={80} />
+                  </Box>
+                )
+              }
+              {channelInformation && (<Box sx={{ display: 'flex', flexDirection: 'row', columnGap: 2, alignItems: 'center' }}>
+                <Avatar src={channelInformation?.profileImage} />
+                <Typography>{channelInformation.displayName}</Typography>
+              </Box>)}
+            </Box>
           <IconButton onClick={goToGithub}><GitHubIcon /></IconButton>
         </Toolbar>
       </AppBar>
