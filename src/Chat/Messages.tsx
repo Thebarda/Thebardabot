@@ -1,10 +1,9 @@
 import { Typography } from "@mui/material";
-import { useAtomValue } from "jotai";
 import { isEmpty } from "ramda";
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useRef, FC } from "react";
 import { makeStyles } from "tss-react/mui";
-import { channelAtom, chatMessagesAtom } from "../atoms";
 import Message from "./Message";
+import { Badge, ChatMessage, Emote } from "../models";
 
 const useStyles = makeStyles()((theme) => ({
   messagesContainer: {
@@ -15,15 +14,18 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing(0.5),
-    marginTop: theme.spacing(8)
   },
 }))
 
-const Messages = () => {
-  const { classes } = useStyles();
+interface Props {
+  channel: string;
+  emotes: Array<Emote>;
+  badges: Array<Badge>;
+  chatMessages: Array<ChatMessage>;
+}
 
-  const messages = useAtomValue(chatMessagesAtom);
-  const channel = useAtomValue(channelAtom);
+const Messages: FC<Props> = ({ channel, chatMessages, emotes, badges }) => {
+  const { classes } = useStyles();
 
   const parentRef = useRef<HTMLDivElement | null>(null);
 
@@ -36,7 +38,7 @@ const Messages = () => {
 
   useEffect(() => {
     resize();
-  }, [messages]);
+  }, [chatMessages]);
 
   useEffect(() => {
     window.addEventListener('resize', resize);
@@ -47,10 +49,12 @@ const Messages = () => {
   }, []);
 
   return (
-    <div className={classes.messagesContainer} ref={parentRef}>
-      {isEmpty(messages) ? <Typography component="em" variant="caption">Connecting to {channel}...</Typography> : messages.map((message) => (
-        <Message chatMessage={message} key={message?.id} />
-      ))}
+    <div style={{ height: 'calc(100vh - 150px)' }}>
+      <div className={classes.messagesContainer} ref={parentRef}>
+        {isEmpty(chatMessages) ? <Typography component="em" variant="caption">Connecting to {channel}...</Typography> : chatMessages.map((message) => (
+          <Message chatMessage={message} key={message?.id} emotes={emotes} badges={badges} />
+        ))}
+      </div>
     </div>
   )
 }

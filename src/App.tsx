@@ -1,8 +1,8 @@
 import { memo } from 'react';
-import { Typography } from "@mui/material";
+import { Typography, Box } from "@mui/material";
 import { useAtomValue } from "jotai";
 import { isNil } from "ramda";
-import { channelAtom, tokenAtom } from "./atoms";
+import { tabsAtom, tokenAtom } from "./atoms";
 import Chat from "./Chat";
 import Header from "./Header";
 import useTwitchAuthentication from "./useTwitchAuthentication";
@@ -10,17 +10,24 @@ import useTwitchAuthentication from "./useTwitchAuthentication";
 const App = () => {
   useTwitchAuthentication();
   
+  const tabs = useAtomValue(tabsAtom);
   const token = useAtomValue(tokenAtom);
-  const channel = useAtomValue(channelAtom);
 
+  
   if (isNil(token)) {
     return <Typography variant="h2">Redirecting to Twitch for authentication...</Typography>
   }
   
   return (
-    <div style={{ width:'100%', height: 'calc(100vh - 70px)' }}>
+    <div style={{ width:'100%', overflowY: 'hidden' }}>
       <Header />
-      {channel ? <Chat /> : <Typography variant="h4" sx={{ ml: 3, mt: 2 }}>Please select a channel</Typography>}
+      <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${tabs}, 1fr)`, mt: 8 }}>
+      {
+        Array(tabs).fill(0).map((_, index) => (
+          <Chat key={`${index.toString()}`} />
+        ))
+      }
+      </Box>
     </div>
   );
 }

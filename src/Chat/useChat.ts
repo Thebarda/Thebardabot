@@ -1,30 +1,32 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue, atom } from 'jotai';
 import { append, concat, drop, gte, isNil, length, map } from 'ramda';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import tmi, { ChatUserstate, Client } from 'tmi.js';
-import { badgesAtom, channelAtom, channelInformationAtom, chatMessagesAtom, emotesAtom, tokenAtom, userAtom } from '../atoms';
+import { tokenAtom, userAtom } from '../atoms';
 
 import credentials from '../credentials.json';
-import { ChatMessage, Emote } from '../models';
+import { Badge, ChannelInformation, ChatMessage, Emote } from '../models';
 
 const formatEmotesFromAPI = map<{ name: string; images: { url_1x: string } }, Emote>(({ name, images }) => ({ name, url: images.url_1x }))
 
 const formatBTTVEmotesFromApi = map<{ id: string; code: string; }, Emote>(({ id, code }) => ({ name: code, url: `https://cdn.betterttv.net/emote/${id}/1x` }));
 
-export const useChat = () => {
-  const [channel, setChannel] = useAtom(channelAtom);
+export const channelInformationAtom = atom<ChannelInformation | null>(null);
+
+export const useChat = (channel: string) => {
+  const [chatMessages, setChatMessages] = useState<Array<ChatMessage>>([]);
+  const [emotes, setEmotes] = useState<Array<Emote>>([]);
+  const [badges, setBadges] = useState<Array<Badge>>([]);
+  const [channelInformation, setChannelInformation] = useState<ChannelInformation | null>(null);
+  
   const token = useAtomValue(tokenAtom);
   const user = useAtomValue(userAtom);
-  const setChatMessages = useSetAtom(chatMessagesAtom);
-  const setEmotes = useSetAtom(emotesAtom);
-  const setBadges = useSetAtom(badgesAtom);
-  const setChannelInformation = useSetAtom(channelInformationAtom);
 
   const clientRef = useRef<Client | null>(null);
 
   const { clientId } = credentials;
 
-  const onConnectedHandler = (addr: string, port: number) => {
+  const onConnectedHandler = useCallback(() => {
     setChatMessages((currentChatMessages) => append<ChatMessage>({
       color: '',
       displayName: undefined,
@@ -33,9 +35,9 @@ export const useChat = () => {
       message: "Welcome to the chat",
       id: 'connect',
     }, currentChatMessages))
-  }
+  }, []);
   
-  const onMessageHandler = (target: unknown, context: ChatUserstate, msg: string, self: unknown) => {
+  const onMessageHandler = useCallback((target: unknown, context: ChatUserstate, msg: string, self: unknown) => {
     setChatMessages((currentChatMessages) => {
       const messagesList = gte(length(currentChatMessages), 200) ? drop(1, currentChatMessages) : currentChatMessages;
 
@@ -50,9 +52,9 @@ export const useChat = () => {
         emotes: context.emotes,
       }, messagesList);
     })
-  }
+  }, [])
 
-  const startListenChat = (channel: string): void => {
+  const startListenChat = useCallback((channel: string): void => {
     const client = new tmi.client({
       identity: {
         username: clientId,
@@ -67,54 +69,53 @@ export const useChat = () => {
     client.on('connected', onConnectedHandler);
 
     client.connect();
-  }
+  }, [channel, clientId, token])
 
-  const getChannelInformation = () => fetch(`https://api.twitch.tv/helix/users?login=${channel}`, {
+  const getChannelInformation = useCallback(() => fetch(`https://api.twitch.tv/helix/users?login=${channel}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Client-Id': clientId,
     }
-  })
+  }), [token, clientId])
 
-  const getGlobalEmotes = () => fetch('https://api.twitch.tv/helix/chat/emotes/global', {
+  const getGlobalEmotes = useCallback(() => fetch('https://api.twitch.tv/helix/chat/emotes/global', {
     headers: {
       Authorization: `Bearer ${token}`,
       'Client-Id': clientId,
     }
-  });
+  }), [token, clientId]);
 
-  const getGlobalBadges = () => fetch('https://api.twitch.tv/helix/chat/badges/global', {
+  const getGlobalBadges = useCallback(() => fetch('https://api.twitch.tv/helix/chat/badges/global', {
     headers: {
       Authorization: `Bearer ${token}`,
       'Client-Id': clientId,
     }
-  });
+  }), [token, clientId]);
 
-  const getChannelEmotes = (id: string) => fetch(`https://api.twitch.tv/helix/chat/emotes?broadcaster_id=${id}`, {
+  const getChannelEmotes = useCallback((id: string) => fetch(`https://api.twitch.tv/helix/chat/emotes?broadcaster_id=${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Client-Id': clientId,
     }
-  });
+  }), [clientId, token]);
 
-  const getChannelBadges = (id: string) => fetch(`https://api.twitch.tv/helix/chat/badges?broadcaster_id=${id}`, {
+  const getChannelBadges = useCallback((id: string) => fetch(`https://api.twitch.tv/helix/chat/badges?broadcaster_id=${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
       'Client-Id': clientId,
     }
-  });
+  }), [token, clientId]);
 
-  const getBTTVGlobalEmotes = () => fetch('https://api.betterttv.net/3/cached/emotes/global');
+  const getBTTVGlobalEmotes = useCallback(() => fetch('https://api.betterttv.net/3/cached/emotes/global'), []);
 
-  const getBTTVChannelEmotes = (id: string) => fetch(`https://api.betterttv.net/3/cached/users/twitch/${id}`);
+  const getBTTVChannelEmotes = useCallback((id: string) => fetch(`https://api.betterttv.net/3/cached/users/twitch/${id}`), []);
 
-  const initChannelInformationEmotesAndBadges = () => {
+  const initChannelInformationEmotesAndBadges = useCallback(() => {
     getChannelInformation().then(async (response) => {
       if (!response.ok) {
         setChatMessages([]);
         setEmotes([]);
         setBadges([]);
-        setChannel(null);
         setChannelInformation(null);
       }
 
@@ -163,7 +164,7 @@ export const useChat = () => {
         setBadges(concat(channelBadges.data, globalBadges.data));
       })
     });
-  }
+  }, [token, clientId, channel])
 
   useEffect(() => {
     setChatMessages([]);
@@ -183,4 +184,11 @@ export const useChat = () => {
       clientRef.current?.disconnect();
     };
   }, [token, user, channel]);
+
+  return {
+    channelInformation,
+    emotes,
+    badges,
+    chatMessages,
+  };
 }

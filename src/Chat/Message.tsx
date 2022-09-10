@@ -1,14 +1,14 @@
 import { getContrastRatio, lighten, Typography, useTheme } from "@mui/material";
-import { useAtomValue } from "jotai";
 import { dec, equals, find, findIndex, flatten, gte, has, isEmpty, isNil, last, max, min, pipe, slice, test, toPairs } from "ramda";
 import { makeStyles } from 'tss-react/mui';
-import { badgesAtom, emotesAtom } from "../atoms";
-import { ChatMessage, Emote } from "../models";
+import { Badge, ChatMessage, Emote } from "../models";
 import parse from 'html-react-parser';
-import { memo } from "react";
+import { memo, FC } from "react";
 
 interface Props {
   chatMessage?: ChatMessage;
+  emotes: Array<Emote>;
+  badges: Array<Badge>;
 }
 
 const useStyles = makeStyles()((theme) => ({
@@ -39,12 +39,9 @@ const useStyles = makeStyles()((theme) => ({
   }
 }));
 
-const Message = ({ chatMessage }: Props) => {
+const Message: FC<Props> = ({ chatMessage, emotes, badges }) => {
   const { classes } = useStyles();
   const theme = useTheme();
-
-  const emotes = useAtomValue(emotesAtom);
-  const badges = useAtomValue(badgesAtom);
   
   if (isNil(chatMessage)) {
     return null;
