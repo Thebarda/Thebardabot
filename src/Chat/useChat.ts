@@ -45,7 +45,7 @@ export const useChat = () => {
         badges: context.badges,
         type: context['message-type'],
         username: context.username,
-        message: `${msg.trim()} http://example.com`,
+        message: msg.trim(),
         id: context.id,
         emotes: context.emotes,
       }, messagesList);
