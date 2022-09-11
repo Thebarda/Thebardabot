@@ -10,7 +10,7 @@ const useStyles = makeStyles()((theme) => ({
     height: '100%',
     overflowY: 'auto',
     overflowX: 'hidden',
-    padding: theme.spacing(2, 0, 2, 4),
+    padding: theme.spacing(2, 0, 1, 4),
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing(0.5),

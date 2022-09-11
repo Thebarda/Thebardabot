@@ -1,7 +1,8 @@
 import { useAtomValue, atom } from 'jotai';
-import { append, concat, drop, gte, isNil, length, map } from 'ramda';
+import { append, concat, drop, gt, gte, has, isNil, length, map } from 'ramda';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import tmi, { ChatUserstate, Client } from 'tmi.js';
+import { textSpanContainsTextSpan } from 'typescript';
 import { tokenAtom, userAtom } from '../atoms';
 
 import credentials from '../credentials.json';
@@ -26,7 +27,7 @@ export const useChat = (channel: string) => {
 
   const { clientId } = credentials;
 
-  const onConnectedHandler = useCallback(() => {
+  const onConnectedHandler = useCallback((addr: string, port: number) => {
     setChatMessages((currentChatMessages) => append<ChatMessage>({
       color: '',
       displayName: undefined,
@@ -45,11 +46,13 @@ export const useChat = (channel: string) => {
         color: context.color,
         displayName: context['display-name'],
         badges: context.badges,
+        badgeInfo: context['badge-info'],
         type: context['message-type'],
         username: context.username,
         message: msg.trim(),
         id: context.id,
         emotes: context.emotes,
+        subscriberBadgeMessage: has('subscriber', context['badge-info']) ? `Subscribed ${context['badge-info'].subscriber} month${gt(Number(context['badge-info'].subscriber), 1) ? 's' : ''} ago` : undefined
       }, messagesList);
     })
   }, [])
@@ -130,26 +133,34 @@ export const useChat = (channel: string) => {
         getChannelEmotes(id),
         getGlobalEmotes(),
         getBTTVGlobalEmotes(),
-        getBTTVChannelEmotes(id)
-      ]).then(async([retrievedChannelEmotes, retrievedGlobalEmotes, retrievedBTTVGlobalEmotes, retrievedBTTVChannelEmotes]) => {
+      ]).then(async([retrievedChannelEmotes, retrievedGlobalEmotes, retrievedBTTVGlobalEmotes]) => {
         const channelEmotes = await retrievedChannelEmotes.json();
         const globalEmotes = await retrievedGlobalEmotes.json();
         const BTTVGlobalEmotes = await retrievedBTTVGlobalEmotes.json();
-        const BTTVChannelEmotes = await retrievedBTTVChannelEmotes.json();
   
         const formattedChannelEmotes = formatEmotesFromAPI(channelEmotes.data);
         const formattedGlobalEmotes = formatEmotesFromAPI(globalEmotes.data);
         const formattedBTTVGlobalEmotes = formatBTTVEmotesFromApi(BTTVGlobalEmotes);
-        const formattedBTTVChannelEmotes = formatBTTVEmotesFromApi(BTTVChannelEmotes.channelEmotes);
-        const formattedBTTVSharedEmotes = formatBTTVEmotesFromApi(BTTVChannelEmotes.sharedEmotes);
   
-        setEmotes([
+        setEmotes((currentEmotes) => [
+          ...currentEmotes,
           ...formattedChannelEmotes,
           ...formattedGlobalEmotes,
           ...formattedBTTVGlobalEmotes,
-          ...formattedBTTVChannelEmotes,
-          ...formattedBTTVSharedEmotes,
         ]);
+
+        getBTTVChannelEmotes(id).then(async (response) => {
+          const BTTVChannelEmotes = await response.json();
+
+          const formattedBTTVChannelEmotes = formatBTTVEmotesFromApi(BTTVChannelEmotes.channelEmotes);
+          const formattedBTTVSharedEmotes = formatBTTVEmotesFromApi(BTTVChannelEmotes.sharedEmotes);
+
+          setEmotes((currentEmotes) => [
+            ...currentEmotes,
+            ...formattedBTTVChannelEmotes,
+            ...formattedBTTVSharedEmotes,
+          ])
+        })
   
         startListenChat(channel as string);
       });

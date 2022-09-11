@@ -19,7 +19,9 @@ export interface ChatMessage {
   badges?: tmi.Badges;
   emotes?: {
     [key: string]: Array<string>;
-  }
+  },
+  subscriberBadgeMessage?: string;
+  badgeInfo?: tmi.BadgeInfo;
 }
 
 export interface Emote {
