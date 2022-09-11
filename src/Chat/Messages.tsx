@@ -14,6 +14,13 @@ const useStyles = makeStyles()((theme) => ({
     display: 'flex',
     flexDirection: 'column',
     rowGap: theme.spacing(0.5),
+    '&::-webkit-scrollbar': {
+      width: theme.spacing(1),
+    },
+    '&::-webkit-scrollbar-thumb': {
+      backgroundColor: 'darkgrey',
+      borderRadius: theme.shape.borderRadius,
+    }
   },
 }))
 
