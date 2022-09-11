@@ -3,12 +3,27 @@ import { useEffect, useRef } from 'react';
 import {isNil} from 'ramda';
 import { useAtom, useSetAtom } from 'jotai';
 import { tokenAtom, userAtom } from './atoms';
+import { useQuery } from '@tanstack/react-query';
+import { customFetch } from './shared/customFetch';
+
+interface TwitchUser {
+  login: string;
+  user_id: string;
+  expires_in: number;
+}
 
 const useTwitchChat = () => {
   const intervalRef = useRef<NodeJS.Timer | undefined>(undefined);
 
   const [token, setToken] = useAtom(tokenAtom);
   const setUser = useSetAtom(userAtom);
+
+  const { data } = useQuery(
+    ['validate', token],
+    ({ signal }) =>
+      customFetch<TwitchUser>({ endpoint: 'https://id.twitch.tv/oauth2/validate', signal, fetchHeaders: { Authorization: `OAuth ${token}` } }),
+    { enabled: Boolean(token) }
+  );
 
   const { clientId } = credentials;
 
@@ -38,32 +53,19 @@ const useTwitchChat = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (isNil(token)) {
-      return;
-    }
+  if (isNil(data)) {
+    return;
+  }
 
-    fetch('https://id.twitch.tv/oauth2/validate', {
-      headers: {
-        Authorization: `OAuth ${token}` 
-      }
-    }).then(async (response) => {
-      const json = await response.json();
-      
-      setUser({
-        login: json.login,
-        id: json.user_id,
-      })
+  setUser({
+    login: data.login,
+    id: data.user_id,
+  })
 
-      // startListenChat(json.login);
-
-      clearInterval(intervalRef.current);
-      intervalRef.current = setInterval(() => {
-        initializeToken();
-      }, json.expires_in)
-    })
-  },
-  [token]);
+  clearInterval(intervalRef.current);
+  intervalRef.current = setInterval(() => {
+    initializeToken();
+  }, data.expires_in);
 }
 
 export default useTwitchChat;
