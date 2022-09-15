@@ -2,7 +2,6 @@ import { useAtomValue, atom } from 'jotai';
 import { append, concat, drop, gt, gte, has, isNil, length, map } from 'ramda';
 import { useEffect, useRef, useState, useCallback } from 'react';
 import tmi, { ChatUserstate, Client } from 'tmi.js';
-import { textSpanContainsTextSpan } from 'typescript';
 import { tokenAtom, userAtom } from '../atoms';
 
 import credentials from '../credentials.json';
@@ -178,6 +177,7 @@ export const useChat = (channel: string) => {
   }, [token, clientId, channel])
 
   useEffect(() => {
+    console.log(token, user, channel)
     setChatMessages([]);
     setEmotes([]);
     setBadges([]);
@@ -194,7 +194,7 @@ export const useChat = (channel: string) => {
     return () => {
       clientRef.current?.disconnect();
     };
-  }, [token, user, channel]);
+  }, [token, user?.login, channel]);
 
   return {
     channelInformation,

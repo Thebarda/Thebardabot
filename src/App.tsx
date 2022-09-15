@@ -24,7 +24,7 @@ const App = () => {
       <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${tabs}, 1fr)`, mt: 8 }}>
       {
         Array(tabs).fill(0).map((_, index) => (
-          <Chat key={`${index.toString()}`} />
+          <Chat key={`tab_${index.toString()}`} />
         ))
       }
       </Box>
