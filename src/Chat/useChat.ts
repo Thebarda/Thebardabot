@@ -177,7 +177,6 @@ export const useChat = (channel: string) => {
   }, [token, clientId, channel])
 
   useEffect(() => {
-    console.log(token, user, channel)
     setChatMessages([]);
     setEmotes([]);
     setBadges([]);
