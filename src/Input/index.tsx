@@ -3,7 +3,7 @@ import { useAtomValue } from "jotai";
 import { equals, includes, isEmpty, slice, __ } from "ramda";
 import { FC, FormEvent, KeyboardEvent, useRef, useState } from "react";
 import { makeStyles } from "tss-react/mui";
-import { tabsAtom, tabWidthAtom } from "../atoms";
+import { tabWidthAtom } from "../atoms";
 import Placeholder from "./Placeholder";
 
 const isRestrictedInput = includes(__, [
@@ -38,6 +38,9 @@ const useStyles = makeStyles<{ tabWidth: number }>()((theme, { tabWidth }) => ({
     whiteSpace: "pre-wrap",
     overflowWrap: "break-word",
     width: `calc(${tabWidth}px - 1px)`,
+    display: "inline-flex",
+    alignItems: "center",
+    wordBreak: "break-all",
   },
 }));
 
@@ -95,6 +98,7 @@ const Input: FC<Props> = ({ sendMessage }) => {
       onBlur={blur}
       tabIndex={0}
       ref={inputRef}
+      suppressContentEditableWarning
     >
       {isEmpty(inputText) && !isFocused && <Placeholder />}
       <div id="message">{inputText}</div>

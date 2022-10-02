@@ -1,4 +1,4 @@
-import { useState, FC, Dispatch, SetStateAction } from "react";
+import { useState, FC, Dispatch, SetStateAction, useEffect } from "react";
 import { Paper, Box, Avatar, Typography, Skeleton } from "@mui/material";
 import Messages from "./Messages";
 import { useChat } from "./useChat";
@@ -14,6 +14,10 @@ const Chat: FC<{
 }> = ({ channel, setChannelInformation }) => {
   const { emotes, badges, chatMessages, channelInformation, clientRef } =
     useChat(channel);
+
+  useEffect(() => {
+    setChannelInformation(channelInformation);
+  }, [channelInformation]);
 
   const sendMessage = (message: string) => {
     if (isNil(clientRef.current) || isNil(channelInformation)) {
@@ -44,6 +48,8 @@ const Container = () => {
   const changeChannel = (newChannel: string) => {
     setChannel(newChannel);
   };
+
+  console.log(channelInformation, channel);
 
   return (
     <Paper
