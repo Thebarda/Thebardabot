@@ -14,3 +14,5 @@ export const badgesAtom = atom<Array<Badge>>([]);
 export const channelsAtom = atom<Array<string | null>>([null]);
 
 export const tabsAtom = atom<number>(1);
+
+export const tabWidthAtom = atom<number>(window.innerWidth);

@@ -7,22 +7,22 @@ import { Badge, ChatMessage, Emote } from "../models";
 
 const useStyles = makeStyles()((theme) => ({
   messagesContainer: {
-    height: '100%',
-    overflowY: 'auto',
-    overflowX: 'hidden',
+    height: "100%",
+    overflowY: "auto",
+    overflowX: "hidden",
     padding: theme.spacing(2, 0, 1, 4),
-    display: 'flex',
-    flexDirection: 'column',
+    display: "flex",
+    flexDirection: "column",
     rowGap: theme.spacing(0.5),
-    '&::-webkit-scrollbar': {
+    "&::-webkit-scrollbar": {
       width: theme.spacing(1),
     },
-    '&::-webkit-scrollbar-thumb': {
-      backgroundColor: 'darkgrey',
+    "&::-webkit-scrollbar-thumb": {
+      backgroundColor: "darkgrey",
       borderRadius: theme.shape.borderRadius,
-    }
+    },
   },
-}))
+}));
 
 interface Props {
   channel: string;
@@ -39,31 +39,42 @@ const Messages: FC<Props> = ({ channel, chatMessages, emotes, badges }) => {
   const resize = () => {
     parentRef.current?.scrollTo({
       top: parentRef.current?.scrollHeight,
-      behavior: 'smooth'
-    })
-  }
+      behavior: "smooth",
+    });
+  };
 
   useEffect(() => {
     resize();
   }, [chatMessages]);
 
   useEffect(() => {
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
     return () => {
-      window.removeEventListener('resize', resize)
-    }
+      window.removeEventListener("resize", resize);
+    };
   }, []);
 
   return (
-    <div style={{ height: 'calc(100vh - 150px)' }}>
+    <div style={{ height: "calc(100vh - 159px)" }}>
       <div className={classes.messagesContainer} ref={parentRef}>
-        {isEmpty(chatMessages) ? <Typography component="em" variant="caption">Connecting to {channel}...</Typography> : chatMessages.map((message) => (
-          <Message chatMessage={message} key={message?.id} emotes={emotes} badges={badges} />
-        ))}
+        {isEmpty(chatMessages) ? (
+          <Typography component="em" variant="caption">
+            Connecting to {channel}...
+          </Typography>
+        ) : (
+          chatMessages.map((message) => (
+            <Message
+              chatMessage={message}
+              key={message?.id}
+              emotes={emotes}
+              badges={badges}
+            />
+          ))
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default memo(Messages);

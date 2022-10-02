@@ -1,4 +1,4 @@
-import tmi from 'tmi.js';
+import tmi from "tmi.js";
 
 export interface User {
   login: string;
@@ -6,7 +6,7 @@ export interface User {
 }
 
 export enum ChatMessageType {
-  Chat = 'chat',
+  Chat = "chat",
 }
 
 export interface ChatMessage {
@@ -19,7 +19,7 @@ export interface ChatMessage {
   badges?: tmi.Badges;
   emotes?: {
     [key: string]: Array<string>;
-  },
+  };
   subscriberBadgeMessage?: string;
   badgeInfo?: tmi.BadgeInfo;
 }
@@ -38,10 +38,11 @@ interface BadgeVersion {
 
 export interface Badge {
   set_id: string;
-  versions: Array<BadgeVersion>
+  versions: Array<BadgeVersion>;
 }
 
 export interface ChannelInformation {
   displayName: string;
   profileImage: string;
+  login: string;
 }
