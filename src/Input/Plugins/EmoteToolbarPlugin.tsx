@@ -1,4 +1,4 @@
-import { Button, Paper, Popper } from "@mui/material";
+import { Button, Grow, Paper, Popper } from "@mui/material";
 import EmojiEmotionsIcon from "@mui/icons-material/EmojiEmotions";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useAtomValue } from "jotai";
@@ -92,24 +92,29 @@ const EmoteToolbarPlugin = ({ channel }: Props): JSX.Element => {
         open={isPopperOpened}
         anchorEl={anchorEl.current}
         placement="top-end"
+        transition
       >
-        <Paper
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, 50px)",
-            columnGap: 1,
-            rowGap: 1,
-            width: "400px",
-            height: "200px",
-            overflowY: "auto",
-            padding: 2,
-            marginBottom: 2,
-          }}
-        >
-          {emotes.map((emote) => (
-            <EmoteOption {...emote} />
-          ))}
-        </Paper>
+        {({ TransitionProps }) => (
+          <Grow {...TransitionProps} timeout={150}>
+            <Paper
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, 50px)",
+                columnGap: 1,
+                rowGap: 1,
+                width: "400px",
+                height: "200px",
+                overflowY: "auto",
+                padding: 2,
+                marginBottom: 2,
+              }}
+            >
+              {emotes.map((emote) => (
+                <EmoteOption {...emote} />
+              ))}
+            </Paper>
+          </Grow>
+        )}
       </Popper>
     </Button>
   );
