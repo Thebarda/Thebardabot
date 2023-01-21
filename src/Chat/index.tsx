@@ -47,10 +47,7 @@ const Chat: FC<{
         badges={badges}
         chatMessages={chatMessages}
       />
-      <Input
-        sendMessage={sendMessage}
-        channelInformation={channelInformation}
-      />
+      <Input sendMessage={sendMessage} channel={channel} />
     </section>
   );
 };

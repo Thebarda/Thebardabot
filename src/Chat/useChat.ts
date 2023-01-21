@@ -3,10 +3,15 @@ import { useAtomValue, useAtom } from "jotai";
 import { append, concat, drop, gt, gte, has, isNil, length, map } from "ramda";
 import { useEffect, useRef, useState, useCallback } from "react";
 import tmi, { ChatUserstate, Client } from "tmi.js";
-import { emotesAtom, tokenAtom, userAtom } from "../atoms";
+import {
+  channelInformationAtom,
+  emotesAtom,
+  tokenAtom,
+  userAtom,
+} from "../atoms";
 
 import credentials from "../credentials.json";
-import { Badge, ChannelInformation, ChatMessage, Emote } from "../models";
+import { Badge, ChatMessage, Emote } from "../models";
 
 const formatEmotesFromAPI = map<
   { name: string; images: { url_1x: string } },
@@ -25,14 +30,18 @@ export const useChat = (channel: string) => {
   const defaultChannelColor = theme.palette.grey[900];
 
   const [chatMessages, setChatMessages] = useState<Array<ChatMessage>>([]);
-  const [emotes, setEmotes] = useAtom(emotesAtom);
+  const [emotes, setEmotes] = useAtom(emotesAtom, channel);
   const [badges, setBadges] = useState<Array<Badge>>([]);
-  const [channelInformation, setChannelInformation] =
-    useState<ChannelInformation | null>(null);
+  const [channelInformation, setChannelInformation] = useAtom(
+    channelInformationAtom,
+    channel
+  );
   const [channelColor, setChannelColor] = useState<string>(defaultChannelColor);
 
   const token = useAtomValue(tokenAtom);
   const user = useAtomValue(userAtom);
+
+  console.log(channelInformation?.displayName, emotes);
 
   const clientRef = useRef<Client | null>(null);
 

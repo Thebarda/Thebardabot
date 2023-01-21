@@ -1,6 +1,6 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { useAtomValue } from "jotai";
-import { LexicalEditor, TextNode } from "lexical";
+import { TextNode } from "lexical";
 import { last, split } from "ramda";
 import { useEffect } from "react";
 import { emotesAtom } from "../../atoms";
@@ -48,8 +48,10 @@ const emoteTransform = (emotes: Array<Emote>) => (node: TextNode) => {
   return null;
 };
 
-const useEmotes = (editor: LexicalEditor) => {
-  const emotes = useAtomValue(emotesAtom);
+const useEmotes = (channel: string) => {
+  const [editor] = useLexicalComposerContext();
+
+  const emotes = useAtomValue(emotesAtom, channel);
 
   useEffect(() => {
     const removeTransform = editor.registerNodeTransform(
@@ -62,9 +64,12 @@ const useEmotes = (editor: LexicalEditor) => {
   }, [editor, emotes]);
 };
 
-const EmotePlugin = () => {
-  const [editor] = useLexicalComposerContext();
-  useEmotes(editor);
+interface Props {
+  channel: string;
+}
+
+const EmotePlugin = ({ channel }: Props) => {
+  useEmotes(channel);
   return null;
 };
 

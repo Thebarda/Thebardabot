@@ -59,10 +59,14 @@ const EmoteTypeaheadMenuItem = ({
   );
 };
 
-const EmoteAutocompletePlugin = () => {
+interface Props {
+  channel: string;
+}
+
+const EmoteAutocompletePlugin = ({ channel }: Props) => {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
-  const emotes = useAtomValue(emotesAtom);
+  const emotes = useAtomValue(emotesAtom, channel);
 
   const checkForSlashTriggerMatch = useBasicTypeaheadTriggerMatch("/", {
     minLength: 0,
