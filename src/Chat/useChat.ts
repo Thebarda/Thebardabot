@@ -41,8 +41,6 @@ export const useChat = (channel: string) => {
   const token = useAtomValue(tokenAtom);
   const user = useAtomValue(userAtom);
 
-  console.log(channelInformation?.displayName, emotes);
-
   const clientRef = useRef<Client | null>(null);
 
   const { clientId } = credentials;
