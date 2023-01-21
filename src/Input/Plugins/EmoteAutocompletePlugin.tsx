@@ -54,7 +54,11 @@ const EmoteTypeaheadMenuItem = ({
       onMouseEnter={onMouseEnter}
       onClick={onClick}
     >
-      <img style={{ height: "22px" }} src={option.url} alt={option.name} />
+      <img
+        style={{ height: "22px" }}
+        src={option.url.replace("static/light", "default/dark")}
+        alt={option.name}
+      />
     </ListItemButton>
   );
 };
@@ -146,7 +150,7 @@ const EmoteAutocompletePlugin = ({ channel }: Props) => {
     () =>
       filteredEmotes
         .map(({ name, url }) => new EmoteTypeAheadOption(name, url))
-        .slice(0, 5),
+        .slice(0, 10),
     [filteredEmotes]
   );
 

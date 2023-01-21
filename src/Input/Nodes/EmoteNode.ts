@@ -35,7 +35,7 @@ export class EmoteNode extends TextNode {
   createDOM(config: EditorConfig): HTMLElement {
     const inner = document.createElement("img");
 
-    inner.src = this.__url;
+    inner.src = this.__url.replace("static/light", "default/dark");
     inner.alt = this.__text;
     inner.style.verticalAlign = "text-top";
     inner.style.objectFit = "contain";
