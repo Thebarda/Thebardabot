@@ -49,8 +49,6 @@ const Container = () => {
     setChannel(newChannel);
   };
 
-  console.log(channelInformation, channel);
-
   return (
     <Paper
       variant="outlined"

@@ -1,8 +1,8 @@
-import { useAtomValue, atom } from "jotai";
+import { useAtomValue, atom, useAtom } from "jotai";
 import { append, concat, drop, gt, gte, has, isNil, length, map } from "ramda";
 import { useEffect, useRef, useState, useCallback } from "react";
 import tmi, { ChatUserstate, Client } from "tmi.js";
-import { tokenAtom, userAtom } from "../atoms";
+import { emotesAtom, tokenAtom, userAtom } from "../atoms";
 
 import credentials from "../credentials.json";
 import { Badge, ChannelInformation, ChatMessage, Emote } from "../models";
@@ -23,7 +23,7 @@ export const channelInformationAtom = atom<ChannelInformation | null>(null);
 
 export const useChat = (channel: string) => {
   const [chatMessages, setChatMessages] = useState<Array<ChatMessage>>([]);
-  const [emotes, setEmotes] = useState<Array<Emote>>([]);
+  const [emotes, setEmotes] = useAtom(emotesAtom);
   const [badges, setBadges] = useState<Array<Badge>>([]);
   const [channelInformation, setChannelInformation] =
     useState<ChannelInformation | null>(null);
