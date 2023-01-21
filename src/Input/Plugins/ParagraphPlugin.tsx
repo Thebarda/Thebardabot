@@ -23,6 +23,8 @@ const ParagraphPlugin = ({ sendMessage }: Props) => {
 
         const trimmedText = replace(/\s\s+/g, " ", text);
 
+        console.log(trimmedText);
+
         sendMessage(trimmedText);
 
         editor.update(() => {

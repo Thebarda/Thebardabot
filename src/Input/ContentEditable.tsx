@@ -9,12 +9,22 @@ const useStyles = makeStyles()((theme) => ({
     "& p": {
       margin: 0,
     },
+    padding: theme.spacing(0.5, 1),
+    borderRadius: theme.shape.borderRadius,
+    border: `1px solid ${theme.palette.grey[800]}`,
   },
   placeholder: {
     color: theme.palette.grey[500],
+    pointerEvents: "none",
+  },
+  emptyContentEditable: {
+    marginTop: "-22px",
   },
   contentEditable: {
-    marginTop: "-22px",
+    outline: "0px solid transparent",
+  },
+  contentEditableFocused: {
+    border: `1px solid ${theme.palette.primary.main}`,
   },
 }));
 
@@ -22,6 +32,7 @@ const ContentEditable = (): JSX.Element => {
   const { classes, cx } = useStyles();
   const [editor] = useLexicalComposerContext();
   const [isEditable, setEditable] = useState(false);
+  const [isFocused, setFocused] = useState(false);
   const [root, setRoot] = useState("");
 
   const ref = useCallback(
@@ -45,14 +56,21 @@ const ContentEditable = (): JSX.Element => {
   }, [editor]);
 
   return (
-    <div className={classes.input}>
+    <div
+      className={cx(classes.input, isFocused && classes.contentEditableFocused)}
+    >
       {root.length === 0 && (
         <Typography className={classes.placeholder}>Send a message</Typography>
       )}
       <div
         contentEditable={isEditable}
         ref={ref}
-        className={cx(root.length === 0 && classes.contentEditable)}
+        className={cx(
+          root.length === 0 && classes.emptyContentEditable,
+          classes.contentEditable
+        )}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
       />
     </div>
   );

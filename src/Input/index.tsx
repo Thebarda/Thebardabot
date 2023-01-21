@@ -6,6 +6,7 @@ import EmotePlugin from "./Plugins/EmotePlugins";
 import { EmoteNode } from "./Nodes/EmoteNode";
 import ParagraphPlugin from "./Plugins/ParagraphPlugin";
 import ContentEditable from "./ContentEditable";
+import EmoteAutocompletePlugin from "./Plugins/EmoteAutocompletePlugin";
 
 const onError = (error: Error) => {
   console.error(error);
@@ -32,6 +33,7 @@ const Input = ({ sendMessage }: InputProps): JSX.Element => {
       <HistoryPlugin />
       <EmotePlugin />
       <ParagraphPlugin sendMessage={sendMessage} />
+      <EmoteAutocompletePlugin />
     </LexicalComposer>
   );
 };
