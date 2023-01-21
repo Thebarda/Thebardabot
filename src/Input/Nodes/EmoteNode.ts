@@ -47,12 +47,7 @@ export class EmoteNode extends TextNode {
     return inner;
   }
 
-  updateDOM(
-    prevNode: TextNode,
-    dom: HTMLElement,
-    config: EditorConfig
-  ): boolean {
-    super.updateDOM(prevNode, dom, config);
+  updateDOM(): boolean {
     return false;
   }
 
