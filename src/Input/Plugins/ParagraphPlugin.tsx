@@ -1,7 +1,9 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { useAtomValue } from "jotai";
 import { $getRoot, LineBreakNode } from "lexical";
 import { join, pluck, replace } from "ramda";
 import { useEffect } from "react";
+import { channelInformationAtom } from "../../atoms";
 
 interface Props {
   sendMessage: (message: string) => void;
@@ -9,6 +11,7 @@ interface Props {
 
 const ParagraphPlugin = ({ sendMessage }: Props) => {
   const [editor] = useLexicalComposerContext();
+  const channelInformation = useAtomValue(channelInformationAtom);
 
   useEffect(() => {
     const removeTransform = editor.registerNodeTransform(
@@ -23,8 +26,6 @@ const ParagraphPlugin = ({ sendMessage }: Props) => {
 
         const trimmedText = replace(/\s\s+/g, " ", text);
 
-        console.log(trimmedText);
-
         sendMessage(trimmedText);
 
         editor.update(() => {
@@ -34,7 +35,7 @@ const ParagraphPlugin = ({ sendMessage }: Props) => {
     );
 
     return removeTransform;
-  }, [editor]);
+  }, [editor, channelInformation]);
 
   return null;
 };

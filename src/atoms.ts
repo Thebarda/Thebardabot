@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { Badge, ChatMessage, Emote, User } from "./models";
+import { Badge, ChannelInformation, ChatMessage, Emote, User } from "./models";
 
 export const tokenAtom = atom<string | null>(null);
 
@@ -16,3 +16,5 @@ export const channelsAtom = atom<Array<string | null>>([null]);
 export const tabsAtom = atom<number>(1);
 
 export const tabWidthAtom = atom<number>(window.innerWidth);
+
+export const channelInformationAtom = atom<ChannelInformation | null>(null);

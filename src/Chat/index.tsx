@@ -1,23 +1,18 @@
-import { useState, FC, Dispatch, SetStateAction, useEffect } from "react";
+import { useState, FC } from "react";
 import { Paper, Box, Avatar, Typography, Skeleton } from "@mui/material";
 import Messages from "./Messages";
 import { useChat } from "./useChat";
 import { isNil } from "ramda";
-import { Provider } from "jotai";
-import { ChannelInformation } from "../models";
+import { Provider, useAtomValue } from "jotai";
 import StreamInput from "./StreamInput";
 import Input from "../Input";
+import { channelInformationAtom } from "../atoms";
 
 const Chat: FC<{
   channel: string;
-  setChannelInformation: Dispatch<SetStateAction<ChannelInformation | null>>;
-}> = ({ channel, setChannelInformation }) => {
+}> = ({ channel }) => {
   const { emotes, badges, chatMessages, channelInformation, clientRef } =
     useChat(channel);
-
-  useEffect(() => {
-    setChannelInformation(channelInformation);
-  }, [channelInformation]);
 
   const sendMessage = (message: string) => {
     if (isNil(clientRef.current) || isNil(channelInformation)) {
@@ -42,8 +37,7 @@ const Chat: FC<{
 
 const Container = () => {
   const [channel, setChannel] = useState<string | null>(null);
-  const [channelInformation, setChannelInformation] =
-    useState<ChannelInformation | null>(null);
+  const channelInformation = useAtomValue(channelInformationAtom);
 
   const changeChannel = (newChannel: string) => {
     setChannel(newChannel);
@@ -95,10 +89,7 @@ const Container = () => {
       </Paper>
       {channel && (
         <Provider scope={channel}>
-          <Chat
-            channel={channel}
-            setChannelInformation={setChannelInformation}
-          />
+          <Chat channel={channel} />
         </Provider>
       )}
     </Paper>
