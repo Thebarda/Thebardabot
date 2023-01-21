@@ -49,7 +49,7 @@ const EmoteTypeaheadMenuItem = ({
       className={className}
       ref={option.setRefElement}
       role="option"
-      aria-selected={isSelected}
+      selected={isSelected}
       id={"typeahead-item-" + index}
       onMouseEnter={onMouseEnter}
       onClick={onClick}
@@ -72,7 +72,7 @@ const EmoteAutocompletePlugin = ({ channel }: Props) => {
   const [queryString, setQueryString] = useState<string | null>(null);
   const emotes = useAtomValue(emotesAtom, channel);
 
-  const checkForSlashTriggerMatch = useBasicTypeaheadTriggerMatch("/", {
+  const checkForSlashTriggerMatch = useBasicTypeaheadTriggerMatch(":", {
     minLength: 0,
   });
 
