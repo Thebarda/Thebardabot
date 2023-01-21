@@ -15,3 +15,4 @@ Here is a list of supported features:
  - tmi.js
  - Material UI
  - Ramda
+ - Lexical
