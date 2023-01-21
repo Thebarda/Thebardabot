@@ -16,7 +16,9 @@ const emoteTransform = (emotes: Array<Emote>) => (node: TextNode) => {
   const endIndexLastWord = textContent.length;
   const startIndexLastWord = textContent.length - lastWord?.length;
 
-  const emote = emotes.find(({ name }) => name === lastWord);
+  const emote = emotes.find(
+    ({ name }) => name.toLowerCase() === lastWord.toLowerCase()
+  );
 
   if (emote) {
     node.setTextContent(`${textContent} `);

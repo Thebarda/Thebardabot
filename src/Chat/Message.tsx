@@ -218,7 +218,10 @@ const Message: FC<Props> = ({ chatMessage, emotes, badges }) => {
           };
         }
 
-        const emoteIndex = findIndex(({ name }) => equals(name, word), emotes);
+        const emoteIndex = findIndex(
+          ({ name }) => equals(name.toLowerCase(), word.toLowerCase()),
+          emotes
+        );
 
         if (equals(emoteIndex, -1)) {
           return undefined;
@@ -279,7 +282,11 @@ const Message: FC<Props> = ({ chatMessage, emotes, badges }) => {
         ];
       }
       const emote = find(
-        ({ name }) => equals(name, message.split(" ")[emoteIndex]),
+        ({ name }) =>
+          equals(
+            name.toLowerCase(),
+            message.split(" ")[emoteIndex].toLowerCase()
+          ),
         emotes
       ) as Emote;
 

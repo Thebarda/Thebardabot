@@ -1,16 +1,12 @@
+import { useTheme } from "@mui/material";
 import { useAtomValue, useAtom } from "jotai";
 import { append, concat, drop, gt, gte, has, isNil, length, map } from "ramda";
 import { useEffect, useRef, useState, useCallback } from "react";
 import tmi, { ChatUserstate, Client } from "tmi.js";
-import {
-  channelInformationAtom,
-  emotesAtom,
-  tokenAtom,
-  userAtom,
-} from "../atoms";
+import { emotesAtom, tokenAtom, userAtom } from "../atoms";
 
 import credentials from "../credentials.json";
-import { Badge, ChatMessage, Emote } from "../models";
+import { Badge, ChannelInformation, ChatMessage, Emote } from "../models";
 
 const formatEmotesFromAPI = map<
   { name: string; images: { url_1x: string } },
@@ -25,12 +21,15 @@ const formatBTTVEmotesFromApi = map<{ id: string; code: string }, Emote>(
 );
 
 export const useChat = (channel: string) => {
+  const theme = useTheme();
+  const defaultChannelColor = theme.palette.grey[900];
+
   const [chatMessages, setChatMessages] = useState<Array<ChatMessage>>([]);
   const [emotes, setEmotes] = useAtom(emotesAtom);
   const [badges, setBadges] = useState<Array<Badge>>([]);
-  const [channelInformation, setChannelInformation] = useAtom(
-    channelInformationAtom
-  );
+  const [channelInformation, setChannelInformation] =
+    useState<ChannelInformation | null>(null);
+  const [channelColor, setChannelColor] = useState<string>(defaultChannelColor);
 
   const token = useAtomValue(tokenAtom);
   const user = useAtomValue(userAtom);
@@ -172,6 +171,17 @@ export const useChat = (channel: string) => {
     []
   );
 
+  const getChannelColor = useCallback(
+    (id: string) =>
+      fetch(`https://api.twitch.tv/helix/chat/color?user_id=${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Client-Id": clientId,
+        },
+      }),
+    [token, clientId]
+  );
+
   const initChannelInformationEmotesAndBadges = useCallback(() => {
     getChannelInformation().then(async (response) => {
       if (!response.ok) {
@@ -188,6 +198,12 @@ export const useChat = (channel: string) => {
         profileImage: information.profile_image_url,
         login: information.login,
       });
+
+      getChannelColor(id)
+        .then(async (response) => response.json())
+        .then(({ data }) => {
+          setChannelColor(data[0]?.color || defaultChannelColor);
+        });
 
       Promise.all([
         getChannelEmotes(id),
@@ -274,5 +290,6 @@ export const useChat = (channel: string) => {
     badges,
     chatMessages,
     clientRef,
+    channelColor,
   };
 };

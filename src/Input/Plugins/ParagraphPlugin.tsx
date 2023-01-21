@@ -1,17 +1,16 @@
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { useAtomValue } from "jotai";
 import { $getRoot, LineBreakNode } from "lexical";
 import { join, pluck, replace } from "ramda";
 import { useEffect } from "react";
-import { channelInformationAtom } from "../../atoms";
+import { ChannelInformation } from "../../models";
 
 interface Props {
   sendMessage: (message: string) => void;
+  channelInformation: ChannelInformation | null;
 }
 
-const ParagraphPlugin = ({ sendMessage }: Props) => {
+const ParagraphPlugin = ({ sendMessage, channelInformation }: Props) => {
   const [editor] = useLexicalComposerContext();
-  const channelInformation = useAtomValue(channelInformationAtom);
 
   useEffect(() => {
     const removeTransform = editor.registerNodeTransform(

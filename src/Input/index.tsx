@@ -7,6 +7,7 @@ import { EmoteNode } from "./Nodes/EmoteNode";
 import ParagraphPlugin from "./Plugins/ParagraphPlugin";
 import ContentEditable from "./ContentEditable";
 import EmoteAutocompletePlugin from "./Plugins/EmoteAutocompletePlugin";
+import { ChannelInformation } from "../models";
 
 const onError = (error: Error) => {
   console.error(error);
@@ -14,9 +15,13 @@ const onError = (error: Error) => {
 
 interface InputProps {
   sendMessage: (message: string) => void;
+  channelInformation: ChannelInformation | null;
 }
 
-const Input = ({ sendMessage }: InputProps): JSX.Element => {
+const Input = ({
+  sendMessage,
+  channelInformation,
+}: InputProps): JSX.Element => {
   const initialConfig = {
     namespace: "MyEditor",
     onError,
@@ -32,7 +37,10 @@ const Input = ({ sendMessage }: InputProps): JSX.Element => {
       />
       <HistoryPlugin />
       <EmotePlugin />
-      <ParagraphPlugin sendMessage={sendMessage} />
+      <ParagraphPlugin
+        sendMessage={sendMessage}
+        channelInformation={channelInformation}
+      />
       <EmoteAutocompletePlugin />
     </LexicalComposer>
   );

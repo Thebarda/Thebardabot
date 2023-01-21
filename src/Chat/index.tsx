@@ -1,18 +1,31 @@
-import { useState, FC } from "react";
-import { Paper, Box, Avatar, Typography, Skeleton } from "@mui/material";
+import { useState, FC, useEffect, SetStateAction, Dispatch } from "react";
+import { Paper, Box, Avatar, Typography, Skeleton, alpha } from "@mui/material";
 import Messages from "./Messages";
 import { useChat } from "./useChat";
 import { isNil } from "ramda";
-import { Provider, useAtomValue } from "jotai";
+import { Provider } from "jotai";
 import StreamInput from "./StreamInput";
 import Input from "../Input";
-import { channelInformationAtom } from "../atoms";
+import { ChannelInformation } from "../models";
 
 const Chat: FC<{
   channel: string;
-}> = ({ channel }) => {
-  const { emotes, badges, chatMessages, channelInformation, clientRef } =
-    useChat(channel);
+  setChannelInformation: Dispatch<SetStateAction<ChannelInformation | null>>;
+  setChannelColor: Dispatch<SetStateAction<string | null>>;
+}> = ({ channel, setChannelInformation, setChannelColor }) => {
+  const {
+    emotes,
+    badges,
+    chatMessages,
+    channelInformation,
+    clientRef,
+    channelColor,
+  } = useChat(channel);
+
+  useEffect(() => {
+    setChannelInformation(channelInformation);
+    setChannelColor(channelColor);
+  }, [channelInformation, channelColor]);
 
   const sendMessage = (message: string) => {
     if (isNil(clientRef.current) || isNil(channelInformation)) {
@@ -23,21 +36,30 @@ const Chat: FC<{
   };
 
   return (
-    <section>
+    <section
+      style={{
+        background: `linear-gradient(${alpha(channelColor, 0.3)}, #000)`,
+      }}
+    >
       <Messages
         channel={channel}
         emotes={emotes}
         badges={badges}
         chatMessages={chatMessages}
       />
-      <Input sendMessage={sendMessage} />
+      <Input
+        sendMessage={sendMessage}
+        channelInformation={channelInformation}
+      />
     </section>
   );
 };
 
 const Container = () => {
   const [channel, setChannel] = useState<string | null>(null);
-  const channelInformation = useAtomValue(channelInformationAtom);
+  const [channelInformation, setChannelInformation] =
+    useState<ChannelInformation | null>(null);
+  const [channelColor, setChannelColor] = useState<string | null>(null);
 
   const changeChannel = (newChannel: string) => {
     setChannel(newChannel);
@@ -46,7 +68,10 @@ const Container = () => {
   return (
     <Paper
       variant="outlined"
-      sx={{ backgroundColor: "paper.background", borderLeft: "none" }}
+      sx={{
+        borderLeft: "none",
+        borderRight: "none",
+      }}
     >
       <Paper
         sx={{
@@ -54,7 +79,11 @@ const Container = () => {
           flexDirection: "row",
           alignItems: "center",
           columnGap: 4,
+          backgroundColor: channelColor
+            ? alpha(channelColor, 0.3)
+            : "paper.background",
         }}
+        square
       >
         <StreamInput setChannel={changeChannel} />
         {isNil(channelInformation) && channel && (
@@ -89,7 +118,11 @@ const Container = () => {
       </Paper>
       {channel && (
         <Provider scope={channel}>
-          <Chat channel={channel} />
+          <Chat
+            channel={channel}
+            setChannelInformation={setChannelInformation}
+            setChannelColor={setChannelColor}
+          />
         </Provider>
       )}
     </Paper>
