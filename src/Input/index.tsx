@@ -7,6 +7,8 @@ import { EmoteNode } from "./Nodes/EmoteNode";
 import ParagraphPlugin from "./Plugins/ParagraphPlugin";
 import ContentEditable from "./ContentEditable";
 import EmoteAutocompletePlugin from "./Plugins/EmoteAutocompletePlugin";
+import EmoteToolbarPlugin from "./Plugins/EmoteToolbarPlugin";
+import { Box } from "@mui/material";
 
 const onError = (error: Error) => {
   console.error(error);
@@ -25,17 +27,26 @@ const Input = ({ sendMessage, channel }: InputProps): JSX.Element => {
   };
 
   return (
-    <LexicalComposer initialConfig={initialConfig}>
-      <PlainTextPlugin
-        contentEditable={<ContentEditable />}
-        placeholder={null}
-        ErrorBoundary={LexicalErrorBoundary}
-      />
-      <HistoryPlugin />
-      <EmotePlugin channel={channel} />
-      <ParagraphPlugin sendMessage={sendMessage} channel={channel} />
-      <EmoteAutocompletePlugin channel={channel} />
-    </LexicalComposer>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "1fr min-content",
+        columnGap: 1,
+      }}
+    >
+      <LexicalComposer initialConfig={initialConfig}>
+        <PlainTextPlugin
+          contentEditable={<ContentEditable />}
+          placeholder={null}
+          ErrorBoundary={LexicalErrorBoundary}
+        />
+        <HistoryPlugin />
+        <EmotePlugin channel={channel} />
+        <ParagraphPlugin sendMessage={sendMessage} channel={channel} />
+        <EmoteAutocompletePlugin channel={channel} />
+        <EmoteToolbarPlugin channel={channel} />
+      </LexicalComposer>
+    </Box>
   );
 };
 
