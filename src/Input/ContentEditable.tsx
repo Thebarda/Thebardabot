@@ -28,7 +28,11 @@ const useStyles = makeStyles()((theme) => ({
   },
 }));
 
-const ContentEditable = (): JSX.Element => {
+interface Props {
+  onRef: (rootElement: HTMLElement) => void;
+}
+
+const ContentEditable = ({ onRef }: Props): JSX.Element => {
   const { classes, cx } = useStyles();
   const [editor] = useLexicalComposerContext();
   const [isEditable, setEditable] = useState(false);
@@ -38,6 +42,9 @@ const ContentEditable = (): JSX.Element => {
   const ref = useCallback(
     (rootElement: null | HTMLElement) => {
       editor.setRootElement(rootElement);
+      if (rootElement) {
+        onRef(rootElement);
+      }
     },
     [editor]
   );

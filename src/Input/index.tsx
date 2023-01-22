@@ -9,6 +9,8 @@ import ContentEditable from "./ContentEditable";
 import EmoteAutocompletePlugin from "./Plugins/EmoteAutocompletePlugin";
 import EmoteToolbarPlugin from "./Plugins/EmoteToolbarPlugin";
 import { Box } from "@mui/material";
+import { useState } from "react";
+import FloatingActionsToolbarPlugin from "./Plugins/FloatingActionsToolbarPlugin";
 
 const onError = (error: Error) => {
   console.error(error);
@@ -20,6 +22,16 @@ interface InputProps {
 }
 
 const Input = ({ sendMessage, channel }: InputProps): JSX.Element => {
+  const [floatingAnchorElem, setFloatingAnchorElem] = useState<
+    HTMLElement | undefined
+  >();
+
+  const onRef = (_floatingAnchorElem: HTMLElement) => {
+    if (_floatingAnchorElem !== undefined) {
+      setFloatingAnchorElem(_floatingAnchorElem);
+    }
+  };
+
   const initialConfig = {
     namespace: "MyEditor",
     onError,
@@ -36,7 +48,7 @@ const Input = ({ sendMessage, channel }: InputProps): JSX.Element => {
     >
       <LexicalComposer initialConfig={initialConfig}>
         <PlainTextPlugin
-          contentEditable={<ContentEditable />}
+          contentEditable={<ContentEditable onRef={onRef} />}
           placeholder={null}
           ErrorBoundary={LexicalErrorBoundary}
         />
@@ -45,6 +57,7 @@ const Input = ({ sendMessage, channel }: InputProps): JSX.Element => {
         <ParagraphPlugin sendMessage={sendMessage} channel={channel} />
         <EmoteAutocompletePlugin channel={channel} />
         <EmoteToolbarPlugin channel={channel} />
+        <FloatingActionsToolbarPlugin anchorElem={floatingAnchorElem} />
       </LexicalComposer>
     </Box>
   );
