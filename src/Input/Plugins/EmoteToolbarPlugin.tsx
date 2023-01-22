@@ -12,9 +12,9 @@ import {
   COMMAND_PRIORITY_NORMAL,
   createCommand,
   LexicalNode,
+  RootNode,
 } from "lexical";
 import { $createEmoteNode } from "../Nodes/EmoteNode";
-import { $moveSelectionPointToEnd } from "lexical/LexicalSelection";
 
 interface Props {
   channel: string;
@@ -33,7 +33,6 @@ const EmoteOption = ({ url, name }: Emote): JSX.Element => {
     <Button size="small" sx={{ width: "50px" }} onClick={insertEmote}>
       <img
         src={url.replace("static/light", "default/dark")}
-        key={name}
         alt={name}
         style={{ width: "22px", objectFit: "contain" }}
       />
@@ -59,7 +58,18 @@ const EmoteToolbarPlugin = ({ channel }: Props): JSX.Element => {
         editor.update(() => {
           const lastNode = $getSelection()?.getNodes()[0] as LexicalNode;
 
-          if (lastNode.getType() === "text") {
+          console.log(lastNode?.getType());
+
+          if (lastNode?.getType() === "root") {
+            const paragraphNode = $createParagraphNode();
+            paragraphNode.append(emoteNode).append($createTextNode(" "));
+            lastNode.append(paragraphNode);
+            emoteNode.selectNext();
+
+            return;
+          }
+
+          if (lastNode?.getType() === "text") {
             lastNode
               .insertAfter(emoteNode)
               .insertAfter($createTextNode(" "))
@@ -78,6 +88,8 @@ const EmoteToolbarPlugin = ({ channel }: Props): JSX.Element => {
       },
       COMMAND_PRIORITY_NORMAL
     );
+
+    editor.focus();
   }, [editor]);
 
   return (
@@ -110,7 +122,7 @@ const EmoteToolbarPlugin = ({ channel }: Props): JSX.Element => {
               }}
             >
               {emotes.map((emote) => (
-                <EmoteOption {...emote} />
+                <EmoteOption key={`${emote.name}${emote.url}`} {...emote} />
               ))}
             </Paper>
           </Grow>
