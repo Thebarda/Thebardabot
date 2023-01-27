@@ -4,7 +4,7 @@ import Messages from "./Messages";
 import { useChat } from "./useChat";
 import { isNil } from "ramda";
 import { Provider } from "jotai";
-import StreamInput from "./StreamInput";
+import StreamInput from "./StreamSelect";
 import Input from "../Input";
 import { ChannelInformation } from "../models";
 

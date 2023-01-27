@@ -243,6 +243,10 @@ export const useChat = (channel: string) => {
           getBTTVChannelEmotes(id).then(async (response) => {
             const BTTVChannelEmotes = await response.json();
 
+            if (isNil(BTTVChannelEmotes)) {
+              return;
+            }
+
             const formattedBTTVChannelEmotes = formatBTTVEmotesFromApi(
               BTTVChannelEmotes.channelEmotes
             );
