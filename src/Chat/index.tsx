@@ -39,6 +39,7 @@ const Chat: FC<{
     <section
       style={{
         background: `linear-gradient(${alpha(channelColor, 0.3)}, #000)`,
+        overflowY: "hidden",
       }}
     >
       <Messages
