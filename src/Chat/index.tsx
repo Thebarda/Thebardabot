@@ -4,7 +4,7 @@ import Messages from "./Messages";
 import { useChat } from "./useChat";
 import { isNil } from "ramda";
 import { Provider } from "jotai";
-import StreamInput from "./StreamInput";
+import StreamInput from "./StreamSelect";
 import Input from "../Input";
 import { ChannelInformation } from "../models";
 
@@ -39,6 +39,7 @@ const Chat: FC<{
     <section
       style={{
         background: `linear-gradient(${alpha(channelColor, 0.3)}, #000)`,
+        overflowY: "hidden",
       }}
     >
       <Messages

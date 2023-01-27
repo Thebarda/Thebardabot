@@ -64,7 +64,7 @@ export const useChat = (channel: string) => {
   const onMessageHandler = useCallback(
     (target: unknown, context: ChatUserstate, msg: string, self: unknown) => {
       setChatMessages((currentChatMessages) => {
-        const messagesList = gte(length(currentChatMessages), 200)
+        const messagesList = gte(length(currentChatMessages), 400)
           ? drop(1, currentChatMessages)
           : currentChatMessages;
 
@@ -242,6 +242,10 @@ export const useChat = (channel: string) => {
 
           getBTTVChannelEmotes(id).then(async (response) => {
             const BTTVChannelEmotes = await response.json();
+
+            if (isNil(BTTVChannelEmotes)) {
+              return;
+            }
 
             const formattedBTTVChannelEmotes = formatBTTVEmotesFromApi(
               BTTVChannelEmotes.channelEmotes

@@ -4,6 +4,9 @@ specifiers:
   '@emotion/react': ^11.9.3
   '@emotion/styled': ^11.9.3
   '@lexical/react': ^0.7.6
+  '@lexical/rich-text': ^0.7.6
+  '@lexical/selection': ^0.7.6
+  '@lexical/utils': ^0.7.6
   '@mui/icons-material': ^5.10.3
   '@mui/material': ^5.9.1
   '@tanstack/react-query': ^4.3.3
@@ -35,6 +38,9 @@ dependencies:
   '@emotion/react': 11.10.5_3stiutgnnbnfnf3uowm5cip22i
   '@emotion/styled': 11.10.5_jrh5enlbqfbnumycmktdqgd6se
   '@lexical/react': 0.7.6_urbbhijj4bjds7dyo6fbmwct4u
+  '@lexical/rich-text': 0.7.6_j7ml7jyttuoh5u6ccaebgucwwi
+  '@lexical/selection': 0.7.6_lexical@0.7.6
+  '@lexical/utils': 0.7.6_lexical@0.7.6
   '@mui/icons-material': 5.11.0_6knf4eskaeuswjfh2cm3sznyza
   '@mui/material': 5.11.5_rqh7qj4464ntrqrt6banhaqg4q
   '@tanstack/react-query': 4.22.0_biqbaboplfbrettd7655fr4n2y
@@ -2248,6 +2254,19 @@ packages:
       lexical: 0.7.6
     dependencies:
       '@lexical/clipboard': 0.7.6_lexical@0.7.6
+      '@lexical/selection': 0.7.6_lexical@0.7.6
+      '@lexical/utils': 0.7.6_lexical@0.7.6
+      lexical: 0.7.6
+    dev: false
+
+  /@lexical/rich-text/0.7.6_j7ml7jyttuoh5u6ccaebgucwwi:
+    resolution: {integrity: sha512-DBMZgzw90m6arI+Q2X2CBbiZBdBZr0avIqOHbgMkeTmgE3K3GpdyF9flT0LNsKntnJB2OZiCLK7zfWT2MKGQ1Q==}
+    peerDependencies:
+      '@lexical/clipboard': 0.7.6
+      '@lexical/selection': 0.7.6
+      '@lexical/utils': 0.7.6
+      lexical: 0.7.6
+    dependencies:
       '@lexical/selection': 0.7.6_lexical@0.7.6
       '@lexical/utils': 0.7.6_lexical@0.7.6
       lexical: 0.7.6
